@@ -5,15 +5,30 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {getBusinesses} from '../services/yelp/index';
+import { getBusinesses } from '../services/yelp/index';
 import CardsComponent from './cards';
+import Slider, { createSliderWithTooltip } from 'rc-slider';
+import 'rc-slider/assets/index.css';
+
+
+const SliderWithTooltip = createSliderWithTooltip(Slider);
+const style = { margin: 50 };
 
 const QuestionaireComponent = () => {
-    let [location, setLocation] = useState({latitude: 0, longitude: 0});
+    let [location, setLocation] = useState({ latitude: 0, longitude: 0 });
     let [price, setPrice] = useState('1');
     let [businesses, setBusinesses] = useState({});
-    let [radius, setRadius] = useState(25);
+    let [radius, setRadius] = useState(0);
 
+    const getRadius = (value) => {
+        console.log(value); //eslint-disable-line
+        setRadius(value);
+      }
+      
+      
+    const radiusFormatter = (miles) => {
+        return `${miles} miles`;
+      }
     const getLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition);
@@ -48,7 +63,7 @@ const QuestionaireComponent = () => {
             radius: radius
         }
         console.log('clicked');
-        getBusinesses(params).then( res => {
+        getBusinesses(params).then(res => {
             return res.json();
         }).then(res => {
             console.log(res);
@@ -72,6 +87,16 @@ const QuestionaireComponent = () => {
                     <Button onClick={getLocation} variant="outline-primary" size="lg" block>Get My Location</Button>
                     <Button onClick={getPlaces} variant="outline-primary" size="lg" block>Get Businesses</Button>
                 </InputGroup>
+                <div style={style}>
+                    <h3>How far? {radius} miles</h3>
+                    <SliderWithTooltip
+                        className = 'radius-slider'
+                        tipFormatter={radiusFormatter}
+                        tipProps={{ overlayClassName: 'foo' }}
+                        onChange={getRadius}
+                        max={25}
+                    />
+                </div>
                 <fieldset>
                     <Form.Group as={Row}>
                         <Form.Label as="legend" column xs={12}>
@@ -116,7 +141,7 @@ const QuestionaireComponent = () => {
                     </Form.Group>
                 </fieldset>
             </form>
-            <CardsComponent cards={businesses.businesses} total={businesses.total}/>
+            <CardsComponent cards={businesses.businesses} total={businesses.total} />
         </div>
     )
 }

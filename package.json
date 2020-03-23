@@ -2,13 +2,19 @@
   "name": "just-pick-something",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "axios": "^0.19.2",
+    "bootstrap": "^4.4.1",
+    "rc-slider": "^9.2.3",
     "react": "^16.13.1",
+    "react-bootstrap": "^1.0.0-beta.17",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "react-stack-cards": "^1.0.8"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -30,5 +36,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "node-sass": "^4.13.1"
   }
 }

@@ -1,76 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Card from 'react-bootstrap/Card';
-import CardDeck from 'react-bootstrap/CardDeck'
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import { TinderLikeCard } from 'react-stack-cards';
-import CuteFood from '../assets/images/cute-food.png';
+// import { TinderLikeCard } from 'react-stack-cards';
 import Button from 'react-bootstrap/Button';
+import { IoIosHeart, IoMdClose } from 'react-icons/io';
+import { FirebaseContext } from '../services/firebase/index';
+import TinderCard from 'react-tinder-card/index';
+
+
+let initData = {
+    roomId: null,
+    playerId: null,
+    restaurantId: null
+}
 
 const CardsComponent = (props) => {
-    let Tinder = null;
-    const onTinderSwipe = () => {
-        Tinder.swipe();
+    const firebase = useContext(FirebaseContext);
+    let [cardDirection, setCardDirection] = useState(null);
+    let [fbData, setFbData] = useState(initData);
+    const [lastDirection, setLastDirection] = useState()
+
+    useEffect(() => {
+        let results = firebase.updateScoreBoard(fbData);
+        console.log('results from udpate scoreboard', results);
+        results.then(res => console.log('results from udpate scoreboard', res))
+    }, [fbData.roomId, fbData.playerId, fbData.restaurantId]);
+    useEffect(() => {
+
+    }, [cardDirection]);
+    const swiped = (direction, nameToDelete) => {
+        console.log('removing: ' + nameToDelete)
+        console.log('direction of swipe', direction);
+        setLastDirection(direction)
+        if(direction === 'right') {
+            console.log('swiped right saving', nameToDelete);
+            setFbData({...fbData, restaurantId: nameToDelete, roomId: props.data.roomId, playerId: props.data.playerId});
+        }
+    }
+
+    const outOfFrame = (name) => {
+        console.log(name + ' left the screen!')
     }
     return (
         <Container className="card-container">
-            {/* <Row>
-                {props.cards?.map(card => {
+            {console.log('rendering cards', props.cards)}
+            {props.cards ? (
+                props.cards.map((card,i) => {
                     return (
-                        <Card as={Col} key={card.id} className="custom-card" xs={12} sm={6} md={3}>
-                            <Card.Img variant="top" src={card.image_url} className="img-fluid" />
-                            <Card.Body>
-                                <Card.Title>{card.name}</Card.Title>
-                                <Card.Text>
-                                    {card.display_phone}
-                                </Card.Text>
-                            </Card.Body>
-                            <Card.Footer>
-                                <span>
-                                    <small className="text-muted">Rating {card.rating}</small>
-                                    <small className="text-muted">Reviews {card.review_count}</small>
-                                    <small className="text-muted">Price {card.price}</small>
-                                </span>
-                            </Card.Footer>
-                        </Card>
-                    )
-                })}
-            </Row> */}
-            {props.cards ? (<div><TinderLikeCard
-                images={[]}
-                width={300}
-                height={450}
-                direction="swipeCornerTopRight"
-                duration={300}
-                ref={(node) => Tinder = node}
-                className="tinder"
-            >
-                {props.cards.map(card => {
-                    return (
-                        <Card key={card.id} className="custom-card">
-                            <Card.Img variant="top" src={card.image_url} style={{ height: '150px', width: '100%' }} />
-                            <Card.Body>
-                                <Card.Title>{card.name}</Card.Title>
-                                <Card.Text>
-                                    {card.display_phone}
-                                </Card.Text>
-                            </Card.Body>
-                            <Card.Footer>
-                                <span>
-                                    <small className="text-muted">Rating {card.rating}</small>
-                                    <small className="text-muted">Reviews {card.review_count}</small>
-                                    <small className="text-muted">Price {card.price}</small>
-                                    <small className="text-muted">Distance {((Math.round((card.distance/1609.344) * 10))/10)} mi.</small>
-                                </span>
-                            </Card.Footer>
-                        </Card>
-                    )
-                })}
-            </TinderLikeCard>
-            </div>) : <div>Not Loaded</div>}
-            <Button variant="primary" size="lg" onClick={onTinderSwipe}>Swipe</Button>
-        </Container>
+                        <TinderCard className='swipe' key={card.id} onSwipe={(dir) => swiped(dir, card.id)} onCardLeftScreen={() => outOfFrame(card.id)}>
+                            <div className='card' style={(i % 2 === 0 ? {'transform': 'rotate(2deg)'}:{'transform': 'rotate(-2deg)'})}>
+                                <h4>{card.name}</h4>
+                                <p>Price {card.price}</p>
+                                <p>Phone {card.display_phone}</p>
+                                <p>Ratings {card.rating}</p>
+                                <p>{card.distance/1609} mi.</p>
+                                <p><a href={card.url} target="_blank">Visit Site</a></p>
+                            </div>
+                        </TinderCard>)
+                })
+            ) : <div>Not Loaded</div>}
+        </Container >
     )
 }
 
